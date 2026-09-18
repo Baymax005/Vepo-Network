@@ -61,6 +61,22 @@ const submitBounty = async () => {
     alert("Transaction failed: " + (err.shortMessage || err.message))
   }
 }
+
+const claimFaucet = async () => {
+  try {
+    await writeContractAsync({
+      address: TOKEN_ADDRESS,
+      abi: VepoTokenABI,
+      functionName: 'faucet',
+      args: [address.value],
+    })
+    alert("Successfully claimed 1000 $VEPO!")
+  } catch (err: any) {
+    console.error("Faucet failed:", err)
+    alert("Faucet failed: " + (err.shortMessage || err.message))
+  }
+}
+
 </script>
 
 <template>
@@ -82,6 +98,13 @@ const submitBounty = async () => {
     </button>
     <div v-if="isSuccess" style="color: var(--primary); margin-top: 10px;">
       Successfully posted!
+    </div>
+
+    <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1)">
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">Need $VEPO to test boosting?</p>
+      <button class="btn-primary" style="background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.5rem;" @click="claimFaucet">
+        Claim Test $VEPO
+      </button>
     </div>
   </div>
 </template>

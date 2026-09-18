@@ -38,9 +38,10 @@ const fetchBounties = async () => {
         client: data[1],
         freelancer: data[2],
         amount: data[3],
-        state: data[4], // 0: Open, 1: Locked, 2: Completed, 3: Cancelled
-        isBoosted: data[5],
-        workLink: data[6],
+        originalAmount: data[4],
+        state: data[5], // 0: Open, 1: Locked, 2: Completed, 3: Cancelled
+        isBoosted: data[6],
+        workLink: data[7],
       })
     } catch (e) {
       console.error("Failed to fetch bounty", i, e)
@@ -115,7 +116,7 @@ const getStateLabel = (state: number) => {
         </span>
       </div>
       
-      <p style="margin-bottom: 0.5rem"><strong>Amount:</strong> {{ formatEther(bounty.amount) }} USDC</p>
+      <p style="margin-bottom: 0.5rem"><strong>Amount:</strong> {{ formatEther(bounty.originalAmount) }} USDC</p>
       <p style="margin-bottom: 0.5rem"><strong>Client:</strong> {{ bounty.client.slice(0,6) }}...{{ bounty.client.slice(-4) }}</p>
       
       <div v-if="bounty.workLink" style="margin-bottom: 0.5rem; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">

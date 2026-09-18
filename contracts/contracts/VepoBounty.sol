@@ -15,6 +15,7 @@ contract VepoBounty is ReentrancyGuard {
         address client;
         address freelancer;
         uint256 amount;
+        uint256 originalAmount;
         BountyState state;
         bool isBoosted;
         string workLink;
@@ -47,6 +48,7 @@ contract VepoBounty is ReentrancyGuard {
             client: msg.sender,
             freelancer: address(0),
             amount: msg.value,
+            originalAmount: msg.value,
             state: BountyState.Open,
             isBoosted: false,
             workLink: ""
