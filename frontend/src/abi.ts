@@ -18,5 +18,5 @@ export const VepoBountyABI = parseAbi([
   "function bounties(uint256) view returns (uint256 bountyId, address client, address freelancer, uint256 amount, uint256 originalAmount, uint8 state, bool isBoosted, string workLink)",
 ]);
 
-export const BOUNTY_ADDRESS = "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82";
-export const TOKEN_ADDRESS = "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0";
+export const BOUNTY_ADDRESS = "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE";
+export const TOKEN_ADDRESS = "0x9A676e781A523b5d0C0e43731313A708CB607508";

@@ -3,10 +3,15 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract VepoBounty is ReentrancyGuard {
-    IERC20 public vepoToken;
-    address public treasury;
+interface IBurnableERC20 is IERC20 {
+    function burnFrom(address account, uint256 amount) external;
+}
+
+contract VepoBounty is ReentrancyGuard, Ownable {
+    IBurnableERC20 public vepoToken;
+    uint256 public boostFee;
 
     enum BountyState { Open, Locked, Completed, Cancelled }
 
@@ -24,8 +29,7 @@ contract VepoBounty is ReentrancyGuard {
     uint256 public bountyCounter;
     mapping(uint256 => Bounty) public bounties;
 
-    // Assumes VEPO and native L3 gas (USDC) are 18 decimals
-    uint256 public constant BOOST_COST = 100 * 10 ** 18; 
+ 
 
     event BountyPosted(uint256 indexed bountyId, address indexed client, uint256 amount);
     event BountyBoosted(uint256 indexed bountyId, address indexed client);
@@ -34,9 +38,9 @@ contract VepoBounty is ReentrancyGuard {
     event BountyCancelled(uint256 indexed bountyId);
     event FundsReleased(uint256 indexed bountyId, address indexed freelancer, uint256 amount);
 
-    constructor(address _vepoToken, address _treasury) {
-        vepoToken = IERC20(_vepoToken);
-        treasury = _treasury;
+    constructor(address _vepoToken) Ownable(msg.sender) {
+        vepoToken = IBurnableERC20(_vepoToken);
+        boostFee = 100 * 10 ** 18; // Default to 100 VEPO
     }
 
     function postBounty() external payable {
@@ -62,10 +66,15 @@ contract VepoBounty is ReentrancyGuard {
         require(bounty.client == msg.sender, "Only client can boost");
         require(!bounty.isBoosted, "Already boosted");
 
-        require(vepoToken.transferFrom(msg.sender, treasury, BOOST_COST), "Transfer failed");
+        // Permanently burn the boost fee from the client's wallet
+        vepoToken.burnFrom(msg.sender, boostFee);
 
         bounty.isBoosted = true;
         emit BountyBoosted(bountyId, msg.sender);
+    }
+
+    function updateBoostFee(uint256 _newFee) external onlyOwner {
+        boostFee = _newFee;
     }
 
     function submitWork(uint256 bountyId, string memory workLink) external {
