@@ -20,6 +20,15 @@ async function main() {
   await vepoBounty.waitForDeployment();
   const bountyAddress = await vepoBounty.getAddress();
   console.log("VepoBounty deployed to:", bountyAddress);
+
+  const fs = require("fs");
+  const path = require("path");
+  const abiPath = path.join(__dirname, "../../frontend/src/abi.ts");
+  let abiFile = fs.readFileSync(abiPath, 'utf8');
+  abiFile = abiFile.replace(/export const BOUNTY_ADDRESS = ".*";/, `export const BOUNTY_ADDRESS = "${bountyAddress}";`);
+  abiFile = abiFile.replace(/export const TOKEN_ADDRESS = ".*";/, `export const TOKEN_ADDRESS = "${tokenAddress}";`);
+  fs.writeFileSync(abiPath, abiFile);
+  console.log("Updated frontend/src/abi.ts with new addresses!");
 }
 
 main().catch((error) => {

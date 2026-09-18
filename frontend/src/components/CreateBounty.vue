@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useWriteContract, useWaitForTransactionReceipt, useAccount } from '@wagmi/vue'
+import { useWriteContract, useWaitForTransactionReceipt, useAccount, useConfig } from '@wagmi/vue'
+import { readContract } from '@wagmi/core'
 import { parseEther } from 'viem'
 import { BOUNTY_ADDRESS, TOKEN_ADDRESS, VepoBountyABI, VepoTokenABI } from '../abi'
 
@@ -8,29 +9,57 @@ const amount = ref('')
 const boost = ref(false)
 const { address } = useAccount()
 
-const { writeContract, data: hash } = useWriteContract()
+const config = useConfig()
+const { writeContractAsync, data: hash } = useWriteContract()
 const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash })
 
 const submitBounty = async () => {
   if (!amount.value) return
   
-  if (boost.value) {
-    // Note: In a robust app, we'd wait for approval to mine, then call post, then boost.
-    // For MVP, we trigger approval if needed.
-    writeContract({
-      address: TOKEN_ADDRESS,
-      abi: VepoTokenABI,
-      functionName: 'approve',
-      args: [BOUNTY_ADDRESS, parseEther('100')],
+  try {
+    // 1. Post the bounty first
+    const tx = await writeContractAsync({
+      address: BOUNTY_ADDRESS,
+      abi: VepoBountyABI,
+      functionName: 'postBounty',
+      value: parseEther(amount.value.toString()),
     })
-  }
 
-  writeContract({
-    address: BOUNTY_ADDRESS,
-    abi: VepoBountyABI,
-    functionName: 'postBounty',
-    value: parseEther(amount.value.toString()),
-  })
+    if (boost.value) {
+      // Wait for local network to mine
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Get the ID of the bounty we just posted
+      const currentCounter = await readContract(config, {
+        address: BOUNTY_ADDRESS,
+        abi: VepoBountyABI,
+        functionName: 'bountyCounter',
+      })
+
+      // 2. Approve the Vepo token transfer
+      await writeContractAsync({
+        address: TOKEN_ADDRESS,
+        abi: VepoTokenABI,
+        functionName: 'approve',
+        args: [BOUNTY_ADDRESS, parseEther('100')],
+      })
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // 3. Boost the bounty
+      await writeContractAsync({
+        address: BOUNTY_ADDRESS,
+        abi: VepoBountyABI,
+        functionName: 'boostBounty',
+        args: [currentCounter],
+      })
+    }
+    
+    amount.value = ''
+    boost.value = false
+  } catch (err: any) {
+    console.error("Transaction failed:", err)
+    alert("Transaction failed: " + (err.shortMessage || err.message))
+  }
 }
 </script>
 
