@@ -57,7 +57,7 @@ Create a `.env` file in the root of your `frontend` directory using the `.env.ex
 ```env
 # frontend/.env
 VITE_VEPO_RPC_URL=http://127.0.0.1:8545
-VITE_CHAIN_ID=31337
+VITE_CHAIN_ID=2739
 # Add any future wallet connect project IDs or third-party keys here
 ```
 
