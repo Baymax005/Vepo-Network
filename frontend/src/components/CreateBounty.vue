@@ -18,7 +18,7 @@ const submitBounty = async () => {
   
   try {
     // 1. Post the bounty first
-    const tx = await writeContractAsync({
+    await writeContractAsync({
       address: BOUNTY_ADDRESS,
       abi: VepoBountyABI,
       functionName: 'postBounty',

@@ -67,7 +67,7 @@ const handleAction = async (actionName: string, id: bigint, extraArg?: string) =
       address: BOUNTY_ADDRESS,
       abi: VepoBountyABI,
       functionName: actionName as any,
-      args,
+      args: args as any,
     })
     // In a real app we wait for tx receipt, for MVP we just delay and refresh
     setTimeout(fetchBounties, 2000)

@@ -59,13 +59,19 @@ npm install
 Create a `.env` file in the `frontend` folder:
 ```env
 VITE_VEPO_RPC_URL=http://127.0.0.1:8545
-VITE_CHAIN_ID=31337
+VITE_CHAIN_ID=2739
 ```
-*(Note: If you run into Chain ID issues with Hardhat, double-check if your node is running on 31337 or the Vepo Testnet ID 2739).*
+*(Note: Ensure your Hardhat node or actual network is running on the official Vepo Testnet ID 2739).*
 
-**Start the Web Server:**
+**Start the Web Server (Development):**
 ```bash
 npm run dev
+```
+Navigate to `http://localhost:5173` in your browser.
+
+**Build for Production:**
+```bash
+npm run build
 ```
 Navigate to `http://localhost:5173` in your browser.
 
