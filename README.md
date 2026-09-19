@@ -1,68 +1,76 @@
-# Vepo Network: Gasless Micro-Bounty Platform
+# Vepo Network
+> Empowering Decentralization in Finance: Vision 2035
 
-## Project Vision & Overview
-Vepo Network is an **Arbitrum Orbit Layer 3 (L3) App-Chain** designed specifically to power a zero-friction, decentralized micro-bounty economy. By utilizing a custom **USDC native gas token** and **AnyTrust Data Availability (DA)**, Vepo eliminates the traditional friction of volatile gas fees (like ETH) while providing lightning-fast, ultra-cheap transactions. It acts as a borderless, global protocol for the freelance economy.
+Vepo Network is a decentralized micro-bounty and freelance economy deployed as an Arbitrum L3 App-Chain. It operates on a robust, highly deflationary dual-token architecture utilizing native USDC for protocol gas/escrow and the $VEPO ERC-20 token for utility, ecosystem boosting, and decentralized governance.
 
-## Core Tech Stack
-- **Smart Contracts:** Solidity, Hardhat, OpenZeppelin
-- **Frontend Framework:** Vue 3, Vite
-- **Web3 Integration:** Wagmi, Viem (TypeScript)
+## Project Documentation
+Please refer to the following comprehensive guides to understand the core Vepo Network systems:
+* [TOKENOMICS.md](./docs/TOKENOMICS.md) - Explains the True Burn mechanics, the 100M absolute Genesis Supply, the Treasury Buyback loop, and the 5M Supply Floor.
+* [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - Technical system design and smart contract data flow diagram.
 
-## Dual-Token Architecture
-Vepo operates on a dual-token model to provide a seamless user experience:
-1. **USDC (Native Gas & Escrow):** At the protocol level, Vepo is configured to use USDC as its native gas token. This means standard `msg.value` and `payable` transfers inherently represent USDC, avoiding the need for complex stablecoin approvals for basic bounties.
-2. **$VEPO (Platform Utility Token):** An ERC-20 token used natively within the ecosystem. Clients can spend 100 $VEPO to "Boost" their bounties, increasing their visibility on the platform.
+---
 
-## Smart Contract Overview
-The platform is powered by two highly optimized and secure smart contracts:
+## Tech Stack
+* **Smart Contracts**: Solidity ^0.8.20, Hardhat, OpenZeppelin (ERC20Burnable, Ownable, ReentrancyGuard)
+* **Frontend UI**: Vue 3, Vite, TailwindCSS
+* **Web3 Integration**: Wagmi, Viem
+* **Blockchain Infrastructure**: Arbitrum Orbit L3 App-Chain with AnyTrust DA
 
-- **`VepoBounty.sol` (The Escrow Engine):** A decentralized escrow contract managing the entire lifecycle of a gig. It utilizes a strict State Machine (`Open`, `Locked`, `Completed`, `Cancelled`) to prevent race conditions. 
-  - **Security:** Fully protected against re-entrancy attacks by inheriting OpenZeppelin's `ReentrancyGuard` and strictly enforcing the **Checks-Effects-Interactions** pattern (e.g., zeroing out `bounty.amount` before executing `.call` transfers to freelancers).
-  
-- **`VepoToken.sol` (Utility Token):** A standard ERC-20 implementation with a fixed supply of 100,000,000 $VEPO minted at genesis. It includes a rate-limited faucet (max 1,000 VEPO per 24 hours per address) for local testnet development.
+---
 
-## Local Setup & Installation
+## Local Development Guide
 
-To run the Vepo development environment locally on your machine, follow these steps:
+Follow these steps to spin up the entire Vepo Network (V3 Tokenomics Engine) locally using the Hardhat network.
 
-1. **Clone the repository:**
-   ```bash
-   git clone git@github.com:Baymax005/Vepo-Network.git
-   cd Vepo-Network
-   ```
+### 1. Prerequisites
+Ensure you have `node` and `npm` installed.
 
-2. **Install Smart Contract Dependencies:**
-   ```bash
-   cd contracts
-   npm install
-   ```
+### 2. Smart Contract Setup & Deployment
+Open a terminal and navigate to the `contracts/` directory to compile and deploy the Vepo Network stack (Tokens, Mocks, Faucets, Staking, and Bounties).
 
-3. **Install Frontend Dependencies:**
-   ```bash
-   cd ../frontend
-   npm install
-   ```
-
-4. **Start the Development Environment:**
-   You can easily spin up the Hardhat local node, deploy the contracts, and start the Vue frontend by running the automated batch script from the project root:
-   ```bash
-   cd ..
-   ./start_dev.bat
-   ```
-   *(The frontend will be available at `http://localhost:5173`)*
-
-## Environment Variables
-Create a `.env` file in the root of your `frontend` directory using the `.env.example` template:
-
-```env
-# frontend/.env
-VITE_VEPO_RPC_URL=http://127.0.0.1:8545
-VITE_CHAIN_ID=2739
-# Add any future wallet connect project IDs or third-party keys here
+```bash
+cd contracts
+npm install
 ```
 
-## Authorship & Genesis
-Vepo Network is a borderless, global protocol designed to empower the freelance economy by removing intermediaries and gas volatility. 
+**Start the Local Hardhat Node:**
+In this terminal, spin up the local blockchain. Keep this terminal window open.
+```bash
+npx hardhat node
+```
 
-This architecture was incubated as part of the **"Empowering Decentralization in Finance: Vision 2035"** initiative. 
-- **Core Architect:** Muhammad Ali
+**Compile and Deploy:**
+Open a **second terminal window**, navigate back to `contracts/`, and run the automated deployment script.
+```bash
+cd contracts
+npx hardhat compile
+npx hardhat run scripts/deploy.ts --network localhost
+```
+*Note: This script automatically handles funding the `VepoFaucet` and the `MockUniswapV2Router`, and dynamically writes the deployed contract addresses into the Vue frontend `abi.ts` file!*
+
+### 3. Frontend Setup
+Open a **third terminal window** and navigate to the `frontend/` directory.
+
+```bash
+cd frontend
+npm install
+```
+
+Create a `.env` file in the `frontend` folder:
+```env
+VITE_VEPO_RPC_URL=http://127.0.0.1:8545
+VITE_CHAIN_ID=31337
+```
+*(Note: If you run into Chain ID issues with Hardhat, double-check if your node is running on 31337 or the Vepo Testnet ID 2739).*
+
+**Start the Web Server:**
+```bash
+npm run dev
+```
+Navigate to `http://localhost:5173` in your browser.
+
+### 4. Using the Reserve Faucet
+Because Vepo Network relies on an absolute Genesis Supply with zero infinite minting, developers must use the pre-funded **Reserve Faucet** to obtain testnet $VEPO.
+1. Connect your MetaMask wallet (configured for your Localhost 8545 network).
+2. Use the "Claim Test $VEPO" functionality on the frontend UI to interact with the `VepoFaucet.sol` contract and request your 1,000 $VEPO drip.
+3. Import the `VepoToken` address printed during the Hardhat deployment into MetaMask to view your balance.

@@ -65,7 +65,8 @@ async function main() {
   let abiFile = fs.readFileSync(abiPath, 'utf8');
   abiFile = abiFile.replace(/export const BOUNTY_ADDRESS = ".*";/, `export const BOUNTY_ADDRESS = "${bountyAddress}";`);
   abiFile = abiFile.replace(/export const TOKEN_ADDRESS = ".*";/, `export const TOKEN_ADDRESS = "${tokenAddress}";`);
-  // Optionally, we could add the FAUCET_ADDRESS and STAKING_ADDRESS, but for MVP updating those two is enough.
+  abiFile = abiFile.replace(/export const FAUCET_ADDRESS = ".*";/, `export const FAUCET_ADDRESS = "${faucetAddress}";`);
+  abiFile = abiFile.replace(/export const STAKING_ADDRESS = ".*";/, `export const STAKING_ADDRESS = "${stakingAddress}";`);
   fs.writeFileSync(abiPath, abiFile);
   console.log("Updated frontend/src/abi.ts with new core addresses!");
 }

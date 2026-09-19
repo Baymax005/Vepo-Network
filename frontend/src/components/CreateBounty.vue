@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useWriteContract, useWaitForTransactionReceipt, useAccount, useConfig } from '@wagmi/vue'
 import { readContract } from '@wagmi/core'
 import { parseEther } from 'viem'
-import { BOUNTY_ADDRESS, TOKEN_ADDRESS, VepoBountyABI, VepoTokenABI } from '../abi'
+import { BOUNTY_ADDRESS, TOKEN_ADDRESS, FAUCET_ADDRESS, VepoBountyABI, VepoTokenABI, VepoFaucetABI } from '../abi'
 
 const amount = ref('')
 const boost = ref(false)
@@ -36,16 +36,28 @@ const submitBounty = async () => {
         functionName: 'bountyCounter',
       })
 
-      // 2. Approve the Vepo token transfer
-      await writeContractAsync({
+      // Smart Frontend Logic: Check existing allowance first
+      if (!address.value) throw new Error("Wallet not connected");
+      
+      const currentAllowance = await readContract(config, {
         address: TOKEN_ADDRESS,
         abi: VepoTokenABI,
-        functionName: 'approve',
-        args: [BOUNTY_ADDRESS, parseEther('100')],
-      })
-      await new Promise(resolve => setTimeout(resolve, 1000))
+        functionName: 'allowance',
+        args: [address.value, BOUNTY_ADDRESS],
+      }) as bigint;
 
-      // 3. Boost the bounty
+      // 2. Approve only if the user hasn't already granted enough allowance
+      if (currentAllowance < parseEther('100')) {
+        await writeContractAsync({
+          address: TOKEN_ADDRESS,
+          abi: VepoTokenABI,
+          functionName: 'approve',
+          args: [BOUNTY_ADDRESS, parseEther('100')],
+        })
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+
+      // 3. Boost the bounty (burns the fee)
       await writeContractAsync({
         address: BOUNTY_ADDRESS,
         abi: VepoBountyABI,
@@ -65,12 +77,11 @@ const submitBounty = async () => {
 const claimFaucet = async () => {
   try {
     await writeContractAsync({
-      address: TOKEN_ADDRESS,
-      abi: VepoTokenABI,
-      functionName: 'faucet',
-      args: [address.value],
+      address: FAUCET_ADDRESS,
+      abi: VepoFaucetABI,
+      functionName: 'requestTokens',
     })
-    alert("Successfully claimed 1000 $VEPO!")
+    alert("Successfully claimed 1000 $VEPO from the Reserve Faucet!")
   } catch (err: any) {
     console.error("Faucet failed:", err)
     alert("Faucet failed: " + (err.shortMessage || err.message))
