@@ -3,6 +3,8 @@ import { useAccount, useConnect, useDisconnect } from '@wagmi/vue'
 import { injected } from '@wagmi/vue/connectors'
 import CreateBounty from './components/CreateBounty.vue'
 import BountyFeed from './components/BountyFeed.vue'
+import StakingDashboard from './components/StakingDashboard.vue'
+import TestnetSandbox from './components/TestnetSandbox.vue'
 
 const { address, isConnected } = useAccount()
 const { connect } = useConnect()
@@ -26,12 +28,16 @@ const handleConnect = () => {
   </header>
 
   <main>
-    <div v-if="isConnected" class="layout-grid">
-      <div>
-        <CreateBounty />
-      </div>
-      <div>
-        <BountyFeed />
+    <div v-if="isConnected">
+      <TestnetSandbox />
+      <div class="layout-grid">
+        <div>
+          <CreateBounty />
+        </div>
+        <div>
+          <StakingDashboard />
+          <BountyFeed />
+        </div>
       </div>
     </div>
     <div v-else class="glass-panel" style="text-align: center; margin-top: 4rem;">

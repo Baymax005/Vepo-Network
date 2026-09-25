@@ -13,22 +13,46 @@ const config = useConfig()
 const { writeContractAsync, data: hash } = useWriteContract()
 const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash })
 
+import { waitForTransactionReceipt } from '@wagmi/core'
+
 const submitBounty = async () => {
   if (!amount.value) return
   
   try {
-    // 1. Post the bounty first
-    await writeContractAsync({
+    if (!address.value) throw new Error("Wallet not connected");
+
+    // Calculate required VEPO allowance (5 for listing, 100 for boost if selected)
+    const requiredAllowance = boost.value ? parseEther('105') : parseEther('5');
+
+    // 1. Check existing allowance first
+    const currentAllowance = await readContract(config, {
+      address: TOKEN_ADDRESS,
+      abi: VepoTokenABI,
+      functionName: 'allowance',
+      args: [address.value, BOUNTY_ADDRESS],
+    }) as bigint;
+
+    // 2. Approve if needed
+    if (currentAllowance < requiredAllowance) {
+      const approveHash = await writeContractAsync({
+        address: TOKEN_ADDRESS,
+        abi: VepoTokenABI,
+        functionName: 'approve',
+        args: [BOUNTY_ADDRESS, requiredAllowance],
+      })
+      await waitForTransactionReceipt(config, { hash: approveHash })
+    }
+
+    // 3. Post the bounty (burns 5 VEPO listing fee)
+    const postHash = await writeContractAsync({
       address: BOUNTY_ADDRESS,
       abi: VepoBountyABI,
       functionName: 'postBounty',
       value: parseEther(amount.value.toString()),
     })
+    await waitForTransactionReceipt(config, { hash: postHash })
 
     if (boost.value) {
-      // Wait for local network to mine
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
       // Get the ID of the bounty we just posted
       const currentCounter = await readContract(config, {
         address: BOUNTY_ADDRESS,
@@ -36,34 +60,14 @@ const submitBounty = async () => {
         functionName: 'bountyCounter',
       })
 
-      // Smart Frontend Logic: Check existing allowance first
-      if (!address.value) throw new Error("Wallet not connected");
-      
-      const currentAllowance = await readContract(config, {
-        address: TOKEN_ADDRESS,
-        abi: VepoTokenABI,
-        functionName: 'allowance',
-        args: [address.value, BOUNTY_ADDRESS],
-      }) as bigint;
-
-      // 2. Approve only if the user hasn't already granted enough allowance
-      if (currentAllowance < parseEther('100')) {
-        await writeContractAsync({
-          address: TOKEN_ADDRESS,
-          abi: VepoTokenABI,
-          functionName: 'approve',
-          args: [BOUNTY_ADDRESS, parseEther('100')],
-        })
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-
-      // 3. Boost the bounty (burns the fee)
-      await writeContractAsync({
+      // 4. Boost the bounty (burns 100 VEPO fee)
+      const boostHash = await writeContractAsync({
         address: BOUNTY_ADDRESS,
         abi: VepoBountyABI,
         functionName: 'boostBounty',
         args: [currentCounter],
       })
+      await waitForTransactionReceipt(config, { hash: boostHash })
     }
     
     amount.value = ''
