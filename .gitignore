@@ -1,9 +1,42 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
 build/
-.env
-.DS_Store
+frontend/dist/
+
+# Hardhat artifacts
 contracts/artifacts/
 contracts/cache/
 contracts/typechain-types/
-frontend/dist/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Coverage
+coverage/
+coverage.json
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Misc
+*.tgz
+.eslintcache

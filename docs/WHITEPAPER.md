@@ -113,7 +113,40 @@ Clients post small, well-scoped tasks ($5–$500) with USDC escrow. Freelancers 
 **Example:** A startup posts a "Design a logo" bounty for 50 USDC. Three freelancers apply (each burning 5 $VEPO). The client selects one, who delivers the work and receives 50 USDC directly to their wallet.
 
 ### 4.2 Cross-Border Remittances (Live)
-By utilizing USDC as the native gas and payment token, Vepo functions as an ultra-low-cost remittance rail. Freelancers in emerging markets receive stablecoin payments instantly without FX fees, wire transfer delays, or correspondent banking costs, offering a massive advantage over Web2 competitors.
+
+The global remittance market exceeded **$860 billion in 2024**, yet migrant workers and cross-border freelancers still lose 6–10% of every transfer to intermediary fees, FX spreads, and correspondent banking delays. Vepo eliminates this entirely.
+
+Because the L3 App-Chain uses **USDC as the native gas token**, every freelancer payment is already a stablecoin transfer settled in under 2 seconds with sub-cent gas fees. This makes Vepo a natural **remittance rail** for the global gig economy:
+
+| Metric | Traditional Remittance | Vepo Network |
+|---|---|---|
+| **Transfer Fee** | 6–10% (World Bank avg.) | < $0.01 (L3 gas) |
+| **Settlement Time** | 1–5 business days | ~2 seconds |
+| **Currency Risk** | High (FX volatility) | None (USDC stablecoin) |
+| **Intermediaries** | 3–5 banks/agents | Zero (peer-to-peer on-chain) |
+| **Minimum Transfer** | $10–$50 | No minimum |
+| **Availability** | Banking hours only | 24/7/365 |
+
+**How it works:**
+
+```
+Client (USA)                              Freelancer (Nigeria)
+    │                                           ▲
+    │  1. Posts bounty (50 USDC escrow)          │
+    ▼                                           │
+VepoBounty.sol (L3 Escrow)                      │
+    │                                           │
+    │  2. Freelancer delivers work              │
+    │  3. Client releases funds                 │
+    │                                           │
+    └───── 50 USDC transferred instantly ───────┘
+           (sub-cent gas fee, < 2s settlement)
+```
+
+**Example:** A developer in Lagos completes a smart contract audit bounty for a startup in Berlin. The client releases 200 USDC — the developer receives it instantly in their wallet. No Western Union. No 7% fee. No 3-day wait. The only cost is a 5 $VEPO listing fee (burned) and negligible L3 gas.
+
+This positions Vepo not just as a freelance marketplace, but as critical financial infrastructure for the **2 billion unbanked and underbanked** workers worldwide who rely on cross-border payments.
+
 
 ### 4.3 Reputation-Gated Hiring (V4.0)
 The VepoReputation system enables quality filtering:

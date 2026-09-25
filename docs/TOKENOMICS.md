@@ -146,6 +146,14 @@ Estimated APY = (Annual Sequencer Revenue × 70% × VEPO/USDC Rate) / Total Stak
 This dual-token model ensures:
 - **$VEPO** captures value through scarcity (burns) and utility (staking, fees).
 - **USDC** provides price-stable payments for freelancers, eliminating volatility risk on earned income.
+- **Remittance-ready:** Because payments are in USDC on a sub-cent L3, Vepo doubles as a cross-border remittance rail — freelancers in emerging markets receive instant stablecoin payments without FX fees or banking delays.
+
+### Supply Floor Fee Redirection
+
+When `totalSupply()` reaches the 10M floor, marketplace $VEPO fees can no longer be burned without violating the floor. Instead, the VepoBounty contract automatically **redirects fees to the VepoStaking contract**, where they are distributed as additional staker yields. This ensures:
+- The protocol never stops collecting revenue.
+- Stakers receive **hyper-yields** as the supply approaches the floor.
+- The 10M floor is mathematically guaranteed.
 
 ---
 
