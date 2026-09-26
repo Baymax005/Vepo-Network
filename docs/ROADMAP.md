@@ -86,14 +86,31 @@ Transition to full community ownership.
 
 ---
 
-## Grant Funding Allocation
+## Micro-Grant Application ($3,500)
 
-If funded, grant proceeds will be allocated as:
+### Funding Purpose
 
-| Category | Allocation | Purpose |
-|---|---|---|
-| **Development** | 40% | Smart contract development, frontend, testing |
-| **Security Audit** | 25% | Professional third-party audit |
-| **Infrastructure** | 15% | L3 sequencer hosting, RPC nodes, monitoring |
-| **Community** | 10% | Bug bounties, developer grants, hackathon prizes |
-| **Operations** | 10% | Legal, compliance, team operations |
+This grant will accelerate Vepo Network from internal testnet to public testnet readiness, covering development infrastructure, smart contract hardening, frontend enhancement, and domain/hosting setup.
+
+### Grant Milestones (3-Month Delivery)
+
+| # | Milestone | Deliverable | Timeline | Budget |
+|---|---|---|---|---|
+| **M1** | Development Infrastructure | Dedicated development machine for L3 node operation, contract compilation, and frontend testing | Month 1 | $1,200 |
+| **M2** | Smart Contract Testing & Hardening | Full test suites for VepoStaking, VepoReputation, and VepoGovernance. Run Slither + Mythril automated analysis and fix all findings | Month 1–2 | $600 |
+| **M3** | Frontend Enhancement | Reputation profile cards, governance voting UI, improved bounty feed UX, and responsive mobile layout | Month 2 | $700 |
+| **M4** | Domain & Public Deployment | Purchase vepo.network domain, deploy frontend to Vercel, configure testnet RPC endpoint for public access | Month 2 | $300 |
+| **M5** | Block Explorer | Deploy a Blockscout instance for transparent L3 transaction tracking and contract verification | Month 2–3 | $400 |
+| **M6** | Documentation & Demo | Developer onboarding guide, API documentation, testnet walkthrough video, and grant progress report | Month 3 | $300 |
+| | | **Total** | **3 months** | **$3,500** |
+
+### Success Criteria
+
+Upon completion, the following will be publicly verifiable:
+
+- ✅ All 6 smart contracts with ≥90% test coverage and clean Slither analysis.
+- ✅ Live frontend at `vepo.network` connected to the L3 testnet.
+- ✅ Public block explorer showing on-chain transaction history.
+- ✅ Published demo video showing the complete bounty lifecycle (post → apply → deliver → pay).
+- ✅ Open-source repository with comprehensive documentation for developer onboarding.
+

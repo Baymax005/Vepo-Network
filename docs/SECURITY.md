@@ -129,7 +129,48 @@ These are documented design trade-offs, not vulnerabilities:
 
 ---
 
-## 6. Responsible Disclosure
+## 6. Progressive Decentralization Plan
+
+The current `onlyOwner` access model is a deliberate design choice for testnet agility, **not** the intended production architecture. The protocol is designed for progressive decentralization through 4 clear phases:
+
+```
+Phase 1: Solo Founder (Current — Testnet)
+  └── Single deployer EOA owns all contracts
+  └── Enables rapid iteration and bug fixes
+  └── All admin actions logged via on-chain events
+        │
+        ▼
+Phase 2: Multisig Migration (Pre-Public Testnet)
+  └── Deploy Gnosis Safe (2-of-3 multisig)
+  └── Transfer ownership of all contracts to the Safe
+  └── No single person can change fees, pause, or resolve disputes alone
+        │
+        ▼
+Phase 3: Hybrid Governance (Pre-Mainnet)
+  └── VepoGovernance handles fee/parameter proposals
+  └── Timelock controller enforces a 24-48h delay on approved changes
+  └── Multisig retains emergency pause capability only
+        │
+        ▼
+Phase 4: Full DAO Control (Post-Mainnet Maturity)
+  └── All onlyOwner functions transferred to VepoGovernance + Timelock
+  └── Dispute resolution transitions to decentralized staker jury
+  └── Multisig owner renounced or limited to emergency-only circuit breaker
+```
+
+### What's Already Built
+
+| Component | Status | Purpose |
+|---|---|---|
+| `VepoGovernance.sol` | ✅ Deployed | Proposal creation, weighted voting, quorum enforcement |
+| `Pausable` on VepoBounty + VepoStaking | ✅ Deployed | Emergency circuit-breaker (future: multisig-only) |
+| On-chain events for all admin actions | ✅ Deployed | Transparent audit trail of every `onlyOwner` call |
+
+> **For Grant Reviewers:** The governance infrastructure is already in place. The remaining work is operational — deploying a Gnosis Safe, transferring ownership, and adding a Timelock controller. These are standard patterns with well-documented OpenZeppelin implementations.
+
+---
+
+## 7. Responsible Disclosure
 
 If you discover a security vulnerability, please report it responsibly:
 

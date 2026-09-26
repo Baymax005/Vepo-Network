@@ -195,6 +195,16 @@ We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md
 
 ---
 
+## 👤 Built By
+
+**Muhammad Ali** — Founder & Lead Developer
+BSIT undergraduate at Bahria University, Lahore Campus. Specializing in decentralized network architecture, L3 infrastructure, and deflationary token economics.
+
+- 📧 muhammadali273910@gmail.com
+- 🐙 [github.com/Baymax005](https://github.com/Baymax005)
+
+---
+
 ## 📄 License
 
 [MIT License](./LICENSE) — Copyright © 2026 Vepo Network
@@ -205,6 +215,6 @@ We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md
 
 **Built with ❤️ for the decentralized future of work**
 
-[Whitepaper](./docs/WHITEPAPER.md) · [Tokenomics](./docs/TOKENOMICS.md) · [Architecture](./docs/ARCHITECTURE.md) · [Roadmap](./docs/ROADMAP.md)
+[Whitepaper](./docs/WHITEPAPER.md) · [Tokenomics](./docs/TOKENOMICS.md) · [Architecture](./docs/ARCHITECTURE.md) · [Security](./docs/SECURITY.md) · [Roadmap](./docs/ROADMAP.md)
 
 </div>

@@ -211,10 +211,17 @@ See [ROADMAP.md](./ROADMAP.md) for the detailed milestone plan.
 
 ## 7. Team & Contact
 
-Vepo Network is being built by a dedicated team of blockchain engineers and product designers passionate about decentralizing the global freelance economy.
+### Core Team
 
-- **Website:** [Coming Soon]
+**Muhammad Ali** — Founder & Lead Developer
+Muhammad is a Web3 developer and BSIT undergraduate at Bahria University, Lahore Campus, specializing in decentralized network architecture. As the sole architect of Vepo Network, he engineered the Arbitrum Orbit L3 infrastructure, the Quadruple Burn deflationary mechanics, the sequencer buyback treasury engine, and the native USDC gas routing system.
+
+> **Note on Decentralization:** Vepo Network is currently developed as a solo-founder initiative during its testnet phase to maintain agile development velocity. As the protocol progresses through Phase 3 (Pre-Mainnet) and migrates to a Gnosis Safe multisig, the project will actively recruit open-source contributors and transition protocol control to the VepoGovernance DAO structure.
+
+### Contact
+
 - **GitHub:** [github.com/Baymax005/Vepo-Network](https://github.com/Baymax005/Vepo-Network)
+- **Email:** muhammadali273910@gmail.com
 - **License:** MIT
 
 ---
