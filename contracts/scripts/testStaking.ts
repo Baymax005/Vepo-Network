@@ -49,8 +49,8 @@ async function main() {
   const receipt = await tx.wait();
 
   // Find the custom event in the logs
-  const event = receipt?.logs.find(
-      (log) => log.fragment && log.fragment.name === 'SequencerProfitsProcessed'
+  const event: any = receipt?.logs.find(
+      (log: any) => log.fragment && log.fragment.name === 'SequencerProfitsProcessed'
   );
   
   if (event) {

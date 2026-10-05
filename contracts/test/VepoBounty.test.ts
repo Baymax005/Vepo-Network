@@ -96,18 +96,92 @@ describe("VepoBounty V3.1", function () {
         await network.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
         await network.provider.send("evm_mine");
 
-        const initialFreelancerEth = await ethers.provider.getBalance(freelancer.address);
+        const initialFreelancerEth: bigint = await ethers.provider.getBalance(freelancer.address);
 
         // Claim should now succeed
         const tx = await vepoBounty.connect(freelancer).claimAbandonedFunds(1);
         const receipt = await tx.wait();
         
-        const gasUsed = receipt?.gasUsed && receipt?.gasPrice ? receipt.gasUsed * receipt.gasPrice : 0n;
+        const gasUsed: bigint = (receipt && receipt.gasPrice) ? BigInt(receipt.gasUsed) * BigInt(receipt.gasPrice) : 0n;
 
-        const finalFreelancerEth = await ethers.provider.getBalance(freelancer.address);
+        const finalFreelancerEth: bigint = await ethers.provider.getBalance(freelancer.address);
         expect(finalFreelancerEth - initialFreelancerEth + gasUsed).to.equal(bountyAmount);
 
         const bounty = await vepoBounty.bounties(1);
         expect(bounty.state).to.equal(2); // 2 = Completed
+    });
+
+    describe("80/20 Dual-Action Fee Engine & Staker Distribution", function () {
+        let mockStaking: any;
+
+        beforeEach(async function () {
+            [, , , mockStaking] = await ethers.getSigners();
+            await vepoBounty.setStakingContract(mockStaking.address);
+        });
+
+        it("should split platform fees 80% burn and 20% to stakers when supply is above floor", async function () {
+            const initialClientBalance = await vepoToken.balanceOf(client.address);
+            const initialStakingBalance = await vepoToken.balanceOf(mockStaking.address);
+            const initialSupply = await vepoToken.totalSupply();
+
+            // Post bounty: 5 VEPO listing fee
+            // 80% of 5 = 4 VEPO burned
+            // 20% of 5 = 1 VEPO to mockStaking
+            const tx = await vepoBounty.connect(client).postBounty({ value: bountyAmount });
+
+            await expect(tx)
+                .to.emit(vepoBounty, "FeeSplit")
+                .withArgs(client.address, ethers.parseEther("4"), ethers.parseEther("1"));
+
+            expect(await vepoToken.balanceOf(client.address)).to.equal(initialClientBalance - listingFee);
+            expect(await vepoToken.balanceOf(mockStaking.address)).to.equal(initialStakingBalance + ethers.parseEther("1"));
+            expect(await vepoToken.totalSupply()).to.equal(initialSupply - ethers.parseEther("4"));
+        });
+
+        it("should allow owner to update stakerFeeBps within limit (<= 5000)", async function () {
+            await expect(vepoBounty.setStakerFeeBps(3000))
+                .to.emit(vepoBounty, "StakerFeeBpsUpdated")
+                .withArgs(3000);
+            expect(await vepoBounty.stakerFeeBps()).to.equal(3000);
+
+            // Rejects > 5000 (50%)
+            await expect(vepoBounty.setStakerFeeBps(5001)).to.be.revertedWith("Staker fee cannot exceed 50%");
+        });
+
+        it("should reject non-owner from updating stakerFeeBps", async function () {
+            await expect(
+                vepoBounty.connect(client).setStakerFeeBps(3000)
+            ).to.be.revertedWithCustomError(vepoBounty, "OwnableUnauthorizedAccount");
+        });
+
+        it("should redirect 100% of fees to stakers when supply is at or below floor", async function () {
+            // Set supplyFloor higher than current totalSupply
+            const currentSupply = await vepoToken.totalSupply();
+            await vepoBounty.setSupplyFloor(currentSupply + ethers.parseEther("1000"));
+
+            const initialClientBalance = await vepoToken.balanceOf(client.address);
+            const initialStakingBalance = await vepoToken.balanceOf(mockStaking.address);
+
+            // Post bounty: 5 VEPO listing fee
+            // When supply <= floor, 100% of 5 VEPO redirects to stakers, zero burned
+            const tx = await vepoBounty.connect(client).postBounty({ value: bountyAmount });
+
+            await expect(tx)
+                .to.emit(vepoBounty, "FeeRedirectedToStakers")
+                .withArgs(client.address, listingFee);
+
+            expect(await vepoToken.balanceOf(client.address)).to.equal(initialClientBalance - listingFee);
+            expect(await vepoToken.balanceOf(mockStaking.address)).to.equal(initialStakingBalance + listingFee);
+            // Supply should be unchanged since nothing was burned
+            expect(await vepoToken.totalSupply()).to.equal(currentSupply);
+        });
+
+        it("should allow owner to update supply floor", async function () {
+            const newFloor = ethers.parseEther("15000000");
+            await expect(vepoBounty.setSupplyFloor(newFloor))
+                .to.emit(vepoBounty, "SupplyFloorUpdated")
+                .withArgs(newFloor);
+            expect(await vepoBounty.supplyFloor()).to.equal(newFloor);
+        });
     });
 });

@@ -40,18 +40,22 @@ All team tokens are subject to the same burn mechanics as any other $VEPO — th
 
 ## 2. Deflationary Mechanisms
 
-### 2.1 The Quadruple Burn (Marketplace Fees)
+### 2.1 The Quadruple Burn & 80/20 Staker Split (Marketplace Fees)
 
-Every marketplace interaction permanently destroys $VEPO through the `burnFrom()` mechanism, directly reducing `totalSupply()`:
+Marketplace interactions power the **80/20 Dual-Action Fee Engine**. When circulating supply is above the 10M floor:
+- **80% of each fee is permanently destroyed** through `burnFrom()`, applying continuous deflationary pressure.
+- **20% of each fee is transferred directly to `VepoStaking`**, generating immediate organic yield for stakers from Day 1.
 
-| Action | Fee | Trigger | Burn Method |
-|---|---|---|---|
-| **Post a Bounty** | 5 $VEPO | Client lists a new gig | `burnFrom()` |
-| **Apply for a Gig** | 5 $VEPO | Freelancer submits application | `burnFrom()` |
-| **Boost a Bounty** | 100 $VEPO | Client promotes gig to top of feed | `burnFrom()` |
-| **Cancel a Bounty** | 5 $VEPO | Client cancels before work starts | `burnFrom()` |
+| Action | Total Fee | Burned (80%) | To Stakers (20%) | Trigger |
+|---|---|---|---|---|
+| **Post a Bounty** | 5 $VEPO | 4 $VEPO | 1 $VEPO | Client lists a new gig |
+| **Apply for a Gig** | 5 $VEPO | 4 $VEPO | 1 $VEPO | Freelancer submits application |
+| **Boost a Bounty** | 100 $VEPO | 80 $VEPO | 20 $VEPO | Client promotes gig to top of feed |
+| **Cancel a Bounty** | 5 $VEPO | 4 $VEPO | 1 $VEPO | Client cancels before work starts |
 
-> **All fees are governance-adjustable** via `setFees()` or individual setters. The protocol owner (and eventually the VepoGovernance DAO) can tune these based on market conditions.
+> **All fees and the staker split ratio are governance-adjustable:**
+> - Fees can be modified via `setFees()` or individual setters.
+> - The staker allocation percentage is controlled by `stakerFeeBps` (default: 2000 = 20%, maximum: 5000 = 50%), adjustable via `setStakerFeeBps()`.
 
 ### 2.2 The Sequencer Buyback & Burn (Treasury Engine)
 
@@ -171,5 +175,6 @@ With the introduction of `VepoGovernance.sol`, $VEPO holders can vote on:
 | Supply Floor | 10,000,000 $VEPO | ✅ |
 | Proposal Threshold | 10,000 $VEPO | ✅ |
 | Quorum | 100,000 $VEPO | ✅ |
+| Staker Fee Split | 2000 (20%) | ✅ |
 
 This creates a path toward **progressive decentralization** — the protocol starts with admin control for rapid iteration, then gradually transfers parameter authority to the DAO.

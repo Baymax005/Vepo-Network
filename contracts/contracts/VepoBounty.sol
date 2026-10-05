@@ -52,6 +52,10 @@ contract VepoBounty is ReentrancyGuard, Ownable, Pausable {
     /// @notice The supply floor — when totalSupply <= this value, fees redirect to stakers.
     uint256 public supplyFloor = 10_000_000 * 10 ** 18;
 
+    /// @notice Percentage of fees redirected to stakers (in basis points). Default 2000 = 20%.
+    /// @dev The remaining (10000 - stakerFeeBps) is burned. Only applies when supply > floor.
+    uint256 public stakerFeeBps = 2000;
+
     // ──────────────────────────────────────────────
     // Anti-Spam Deflationary Fees (The Quadruple Burn)
     // ──────────────────────────────────────────────
@@ -146,11 +150,17 @@ contract VepoBounty is ReentrancyGuard, Ownable, Pausable {
     /// @notice Emitted when a fee is redirected to stakers (supply at floor).
     event FeeRedirectedToStakers(address indexed payer, uint256 amount);
 
+    /// @notice Emitted when a fee is split between burn and stakers (supply above floor).
+    event FeeSplit(address indexed payer, uint256 burned, uint256 toStakers);
+
     /// @notice Emitted when the staking contract address is updated.
     event StakingContractUpdated(address indexed newStakingContract);
 
     /// @notice Emitted when the supply floor is updated.
     event SupplyFloorUpdated(uint256 newFloor);
+
+    /// @notice Emitted when the staker fee basis points are updated.
+    event StakerFeeBpsUpdated(uint256 newBps);
 
     // ──────────────────────────────────────────────
     // Constructor
@@ -220,6 +230,16 @@ contract VepoBounty is ReentrancyGuard, Ownable, Pausable {
         emit SupplyFloorUpdated(_newFloor);
     }
 
+    /**
+     * @notice Updates the staker fee split percentage.
+     * @param _newBps New staker fee in basis points (e.g., 2000 = 20%). Max 5000 (50%).
+     */
+    function setStakerFeeBps(uint256 _newBps) external onlyOwner {
+        require(_newBps <= 5000, "Staker fee cannot exceed 50%");
+        stakerFeeBps = _newBps;
+        emit StakerFeeBpsUpdated(_newBps);
+    }
+
     // ──────────────────────────────────────────────
     // Emergency Controls
     // ──────────────────────────────────────────────
@@ -235,12 +255,18 @@ contract VepoBounty is ReentrancyGuard, Ownable, Pausable {
     // ──────────────────────────────────────────────
 
     /**
-     * @dev Processes a platform fee from a user. If the total supply is above the
-     * supply floor, the fee is burned. If the supply is at or below the floor,
-     * the fee is transferred to the VepoStaking contract for staker distribution.
+     * @dev Processes a platform fee using the 80/20 Dual-Action Fee Engine.
      *
-     * This ensures the protocol continues to collect fees and incentivize stakers
-     * even after the token reaches its minimum supply.
+     * When total supply is ABOVE the supply floor:
+     *   - (100% - stakerFeeBps) of the fee is permanently burned (deflationary pressure).
+     *   - stakerFeeBps of the fee is sent to the VepoStaking contract as staker yield.
+     *   - Default: 80% burned, 20% to stakers.
+     *
+     * When total supply is AT or BELOW the supply floor:
+     *   - 100% of the fee is redirected to stakers (no more burning).
+     *
+     * This ensures stakers earn yield from Day 1 (not just from sequencer profits),
+     * creating an immediate incentive to stake $VEPO.
      *
      * @param payer The address paying the fee (must have approved this contract).
      * @param amount The fee amount in $VEPO (wei).
@@ -249,15 +275,30 @@ contract VepoBounty is ReentrancyGuard, Ownable, Pausable {
         uint256 currentSupply = vepoToken.totalSupply();
 
         if (currentSupply > supplyFloor) {
-            // Supply is above floor — burn the fee (deflationary)
-            vepoToken.burnFrom(payer, amount);
-            emit FeeBurned(payer, amount);
+            // Supply above floor — split fee: burn + staker yield
+            uint256 stakerAmount = (amount * stakerFeeBps) / 10000;
+            uint256 burnAmount = amount - stakerAmount;
+
+            // Burn the deflationary portion
+            if (burnAmount > 0) {
+                vepoToken.burnFrom(payer, burnAmount);
+            }
+
+            // Send the staker portion (if staking contract is set)
+            if (stakerAmount > 0 && stakingContract != address(0)) {
+                require(vepoToken.transferFrom(payer, stakingContract, stakerAmount), "Staker fee transfer failed");
+            } else if (stakerAmount > 0) {
+                // Fallback: burn staker portion too if staking not configured yet
+                vepoToken.burnFrom(payer, stakerAmount);
+            }
+
+            emit FeeSplit(payer, burnAmount, stakerAmount);
         } else if (stakingContract != address(0)) {
-            // Supply is at floor — redirect fee to stakers (value accrual)
+            // Supply at floor — redirect 100% to stakers (value accrual)
             require(vepoToken.transferFrom(payer, stakingContract, amount), "Fee redirect failed");
             emit FeeRedirectedToStakers(payer, amount);
         } else {
-            // Fallback: if staking contract not set, still burn
+            // Fallback: if staking contract not set AND at floor, still burn
             // (this prevents a DoS where fees can't be collected)
             vepoToken.burnFrom(payer, amount);
             emit FeeBurned(payer, amount);
