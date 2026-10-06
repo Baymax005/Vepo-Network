@@ -33,11 +33,11 @@ Extending the protocol with reputation, governance, and hardened security.
 | NatSpec Documentation | ✅ Done | Full developer docs on all contract functions |
 | Whitepaper V1 | ✅ Done | Problem statement, competitive analysis, use cases |
 | Grant-Ready Docs | ✅ Done | TOKENOMICS V4, ARCHITECTURE V4, ROADMAP, SECURITY |
-| VepoStaking Tests | 🔲 Planned | Comprehensive buyback, burn, and floor clamping tests |
-| VepoReputation Tests | 🔲 Planned | Score computation, authorization, edge cases |
-| VepoGovernance Tests | 🔲 Planned | Proposal lifecycle, voting, quorum tests |
-| Frontend: Reputation UI | 🔲 Planned | Freelancer profile cards with reputation scores |
-| Frontend: Governance UI | 🔲 Planned | Proposal listing, voting interface |
+| VepoStaking Tests | ✅ Done | 14 tests — buyback, burn, floor clamping, pause/unpause |
+| VepoReputation Tests | ✅ Done | 12 tests — score computation, authorization, edge cases |
+| VepoGovernance Tests | ✅ Done | 18 tests — proposal lifecycle, voting, quorum |
+| Frontend: Reputation UI | ✅ Done | Freelancer profile cards with on-chain reputation scores |
+| Frontend: Governance UI | ✅ Done | Proposal listing, voting interface, create proposal form |
 | L3 Block Explorer | 🔲 Planned | Deploy Blockscout/similar for transparent L3 transaction tracking |
 
 ---

@@ -8,6 +8,8 @@ import { TOKEN_ADDRESS, VepoTokenABI } from './abi'
 import CreateBounty from './components/CreateBounty.vue'
 import BountyFeed from './components/BountyFeed.vue'
 import StakingDashboard from './components/StakingDashboard.vue'
+import GovernanceDashboard from './components/GovernanceDashboard.vue'
+import ReputationProfile from './components/ReputationProfile.vue'
 import TestnetSandbox from './components/TestnetSandbox.vue'
 import NetworkStatsBar from './components/NetworkStatsBar.vue'
 import ToastNotification from './components/ToastNotification.vue'
@@ -16,7 +18,7 @@ const { address, isConnected } = useAccount()
 const { connect } = useConnect()
 const { disconnect } = useDisconnect()
 
-const activeTab = ref<'marketplace' | 'staking' | 'sandbox'>('marketplace')
+const activeTab = ref<'marketplace' | 'staking' | 'governance' | 'reputation' | 'sandbox'>('marketplace')
 
 const handleConnect = () => {
   connect({ connector: injected() })
@@ -72,6 +74,20 @@ const formattedUserBalance = computed(() => {
         Staking & Treasury
       </button>
       <button
+        :class="['tab-btn', { active: activeTab === 'governance' }]"
+        @click="activeTab = 'governance'"
+      >
+        <span class="tab-indicator" v-if="activeTab === 'governance'"></span>
+        Governance
+      </button>
+      <button
+        :class="['tab-btn', { active: activeTab === 'reputation' }]"
+        @click="activeTab = 'reputation'"
+      >
+        <span class="tab-indicator" v-if="activeTab === 'reputation'"></span>
+        Reputation
+      </button>
+      <button
         :class="['tab-btn', { active: activeTab === 'sandbox' }]"
         @click="activeTab = 'sandbox'"
       >
@@ -124,7 +140,17 @@ const formattedUserBalance = computed(() => {
         <StakingDashboard />
       </div>
 
-      <!-- Tab 3: Testnet Sandbox -->
+      <!-- Tab 3: Governance Dashboard -->
+      <div v-show="activeTab === 'governance'">
+        <GovernanceDashboard />
+      </div>
+
+      <!-- Tab 4: Reputation Profile Search & Metrics -->
+      <div v-show="activeTab === 'reputation'">
+        <ReputationProfile />
+      </div>
+
+      <!-- Tab 5: Testnet Sandbox -->
       <div v-show="activeTab === 'sandbox'">
         <TestnetSandbox />
       </div>

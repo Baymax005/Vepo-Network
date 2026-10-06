@@ -158,15 +158,28 @@ Phase 4: Full DAO Control (Post-Mainnet Maturity)
   └── Multisig owner renounced or limited to emergency-only circuit breaker
 ```
 
+### Phase Overview
+
+| Phase | Owner Type | Description |
+|---|---|---|
+| **Phase 1 (Current)** | Single EOA | Deployer wallet controls all `onlyOwner` functions for rapid testnet iteration |
+| **Phase 2 (Testnet)** | Gnosis Safe Multisig | Migrate ownership to a 2-of-3 multisig for shared admin control |
+| **Phase 3 (Pre-Mainnet)** | Governance + Timelock | Transfer fee/parameter control to VepoGovernance with a 24-hour Timelock |
+| **Phase 4 (Mainnet)** | Full DAO | Owner renounced or set to governance contract — community controls all parameters |
+
+**Current Admin Functions (22 total across 6 contracts):**
+VepoGovernance is already deployed and tested with 18 passing unit tests. The transition from Phase 1 to Phase 2 requires only a single `transferOwnership()` call on each contract pointing to the multisig address.
+
 ### What's Already Built
 
 | Component | Status | Purpose |
 |---|---|---|
-| `VepoGovernance.sol` | ✅ Deployed | Proposal creation, weighted voting, quorum enforcement |
+| `VepoGovernance.sol` | ✅ Deployed (18 unit tests) | Proposal creation, weighted voting, quorum enforcement |
+| `VepoReputation.sol` | ✅ Deployed (12 unit tests) | On-chain reputation scoring and dispute tracking |
 | `Pausable` on VepoBounty + VepoStaking | ✅ Deployed | Emergency circuit-breaker (future: multisig-only) |
 | On-chain events for all admin actions | ✅ Deployed | Transparent audit trail of every `onlyOwner` call |
 
-> **For Grant Reviewers:** The governance infrastructure is already in place. The remaining work is operational — deploying a Gnosis Safe, transferring ownership, and adding a Timelock controller. These are standard patterns with well-documented OpenZeppelin implementations.
+> **For Grant Reviewers:** The governance infrastructure is already in place with full unit test coverage. The remaining work is operational — deploying a Gnosis Safe, transferring ownership, and adding a Timelock controller. These are standard patterns with well-documented OpenZeppelin implementations.
 
 ---
 
